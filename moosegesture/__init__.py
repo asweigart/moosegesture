@@ -1,5 +1,5 @@
 """
-"MooseGesture 0.1" a mouse gestures recognition library.
+"MooseGesture 0.9.0" a mouse gestures recognition library.
 Al Sweigart al@coffeeghost.net
 http://coffeeghost.net/2011/05/09/moosegesture-python-mouse-gestures-module
 
@@ -77,6 +77,8 @@ Explanation of the nomenclature in this module:
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
+
+__version__ = '0.9.0'
 
 from math import sqrt
 from sys import maxsize
@@ -184,6 +186,7 @@ def levenshteinDistance(s1, s2):
 
 def setMinStrokeLen(val):
     # Set the length (in pixels) a stroke must be to be recognized as a stroke.
+    global _MIN_SEG_LEN
     _MIN_SEG_LEN = val
 
 def getMinStrokeLen():

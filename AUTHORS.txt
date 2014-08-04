@@ -1,0 +1,11 @@
+Here is an inevitably incomplete list of MUCH-APPRECIATED CONTRIBUTORS --
+people who have submitted patches, reported bugs, added translations, helped
+answer newbie questions, and generally made Pygcurse that much better:
+
+Al Sweigart al@inventwithpython.com
+Johannes https://github.com/johtso
+Kef Schecter https://github.com/furrykef
+Luke M. https://github.com/flags
+mardiqwop https://github.com/mardiqwop
+Mariano Verdú https://github.com/verdumariano
+Wesley Werner https://github.com/wesleywerner

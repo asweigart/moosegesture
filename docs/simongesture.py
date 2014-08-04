@@ -10,6 +10,7 @@
 
 import random, sys, time, pygame, math, moosegesture
 from pygame.locals import *
+from moosegesture import UP, UPRIGHT, RIGHT, DOWNRIGHT, DOWN,DOWNLEFT, LEFT, UPLEFT
 
 FPS = 30 # frames per second. Increase to speed up the game.
 WINDOWWIDTH = 640
@@ -38,14 +39,6 @@ DOTRADIUS = 10 # size of dot
 MAXGESTURES = 100 # max number of gestures (no way the player will be able to memorize this many)
 
 # directional constants (made to be the same as moosegesture's
-UP = 8
-UPRIGHT = 9
-RIGHT = 6
-DOWNRIGHT = 3
-DOWN = 2
-DOWNLEFT = 1
-LEFT = 4
-UPLEFT = 7
 DIRECTIONS = (UP, UPRIGHT, RIGHT, DOWNRIGHT, DOWN, DOWNLEFT, LEFT, UPLEFT)
 
 # the blue hint arrow that shows what the most recent gesture the player made is.

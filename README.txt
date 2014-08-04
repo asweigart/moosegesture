@@ -1,7 +1,7 @@
 MooseGesture
 ============
 
-A mouse gesture recognitiion module for Python.
+A mouse gesture recognition module for Python.
 
 Released under a "Simplified BSD" license
 

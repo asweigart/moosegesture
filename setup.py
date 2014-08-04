@@ -12,7 +12,7 @@ setup(
     url='https://github.com/asweigart/moosegesture',
     author='Al Sweigart',
     author_email='al@inventwithpython.com',
-    description=('A mouse gesture recognitiion module for Python.'),
+    description=('A mouse gesture recognition module for Python.'),
     license='BSD',
     packages=['moosegesture'],
     test_suite='tests',

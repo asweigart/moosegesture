@@ -16,8 +16,9 @@ http://pygame.org
 Copyright 2011, BSD-license.
 """
 
-import pygame, random, sys
+import pygame, sys, os
 from pygame.locals import *
+sys.path.append(os.path.abspath('..'))
 import moosegesture
 
 # setup constants
@@ -65,7 +66,7 @@ while True: # main loop
             mouseDown = False
             strokes = moosegesture.getGesture(points)
             segments = moosegesture.getSegments(points)
-            strokeText = moosegesture.getGestureStr(strokes)
+            strokeText = ' '.join(strokes)
             textobj = font.render(strokeText, 1, (255,255,255))
             textrect = textobj.get_rect()
             textrect.topleft = (10, WINDOWHEIGHT - 30)

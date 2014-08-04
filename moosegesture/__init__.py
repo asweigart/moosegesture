@@ -1,5 +1,5 @@
 """
-"MooseGesture 0.9.0" a mouse gestures recognition library.
+MooseGesture 0.9.0 A mouse gestures recognition library.
 Al Sweigart al@coffeeghost.net
 http://coffeeghost.net/2011/05/09/moosegesture-python-mouse-gestures-module
 
@@ -8,23 +8,19 @@ Usage:
     gesture = moosegesture.getGesture(points)
 
 Where "points" is a list of x, y coordinate tuples, e.g. [(100, 200), (1234, 5678), ...]
-getGesture returns a list of integers for the recognized mouse gesture. The integers
+getGesture returns a list of string for the recognized mouse gesture. The strings
 correspond to the 8 cardinal and diagonal directions:
 
-  up-left    up   up-right
-         7   8   9
-
-    left 4       6 right
-
-         1   2   3
-down-left   down  down-right
+    'UL' (up-left), 'U' (up), 'UR' (up-right)
+    'L' (left), 'R' (right)
+    'DL' (down-left), 'D' (down), 'DR' (down-right)
 
 Second usage:
-    strokes  = [2, 4, 6]
-    gestures = [[2, 4, 2], [2, 6, 9]]
+    strokes  = ['D', 'L', 'R']
+    gestures = [['D', 'L', 'D'], ['D', 'R', 'UR']]
     gesture = moosegesture.findClosestMatchingGesture(strokes, gestures)
 
-    gesture == [2, 4, 2]
+    gesture == ['D', 'L', 'D']
 
 Where "strokes" is a list of the directional integers that are returned from
 getGesture(). This returns the closest resembling gesture from the list of
@@ -78,29 +74,23 @@ Explanation of the nomenclature in this module:
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-__version__ = '0.9.0'
+__version__ = '0.9.1'
 
 from math import sqrt
 from sys import maxsize
 
 # This is the minimum distance the mouse must travel (in pixels) before a
 # segment will be considered for stroke interpretation.
-_MIN_SEG_LEN = 60
+_MIN_STROKE_LEN = 60
 
-# The integers-to-directions mapping matches the keypad:
-#   7 8 9
-#   4   6
-#   1 2 3
-DOWNLEFT = 1
-DOWN = 2
-DOWNRIGHT = 3
-LEFT = 4
-RIGHT = 6
-UPLEFT = 7
-UP = 8
-UPRIGHT = 9
-
-_strokesStrings = {1:'DL', 2:'D', 3:'DR', 4:'L', 6:'R', 7:'UL', 8:'U', 9:'UR'}
+DOWNLEFT = 'DL'
+DOWN = 'D'
+DOWNRIGHT = 'DR'
+LEFT = 'L'
+RIGHT = 'R'
+UPLEFT = 'UL'
+UP = 'U'
+UPRIGHT = 'UR'
 
 def getGesture(points):
     # Returns a gesture as a list of directional integers, i.e. [2,6,4] for
@@ -110,10 +100,12 @@ def getGesture(points):
     # mouse gesture.
     return _identifyStrokes(points)[0]
 
+
 def getSegments(points):
     # Returns a list of tuples of integers. The tuples are the start and end
     # indexes of the points that make up a consistent stroke.
     return _identifyStrokes(points)[1]
+
 
 def getGestureAndSegments(points):
     # Returns a list of tuples. The first item in the tuple is the directional
@@ -122,41 +114,28 @@ def getGestureAndSegments(points):
     strokes, strokeSegments = _identifyStrokes(points)
     return list(zip(strokes, strokeSegments))
 
-def getGestureStr(strokes):
-    # Returns a string of space-delimited text characters that represent the
-    # strokes passed in. For example, getGesture([2, 6, 4]) returns "D R L".
-    #
-    # The strokes parameter is a list of directional integers, like the kind
-    # returned by getGesture().
-    if len(strokes) and type(strokes[0]) == type(0):
-        # points is a list of directional integers, returned from getGesture()
-        return ' '.join(_strokesStrings[x] for x in strokes)
-    else:
-        # points is returned from getGestureAndSegments()
-        return ' '.join(_strokesStrings[x] for x in _identifyStrokes(strokes)[0])
 
 def findClosestMatchingGesture(strokes, gestureList, tolerance=maxsize):
-    # Returns the gesture in gestureList that closest matches the gesture in
+    # Returns the gesture(s) in gestureList that closest matches the gesture in
     # strokes. The tolerance is how many differences there can be and still
     # be considered a match.
     if len(gestureList) == 0:
         return None
 
-    strokes = ''.join(strokes)
-    gestureList = [''.join(x) for x in gestureList]
-    gestureList = list(frozenset(gestureList)) # make a unique list
+    #gestureList = [list(frozenset(tuple(gesture))) for gesture in gestureList] # make a unique list
+    gestureList = frozenset([tuple(gesture) for gesture in gestureList])
     distances = {}
     for g in gestureList:
-        dist = levenshteinDistance(strokes, g)
-        if dist in distances:
-            distances[dist].append(g)
-        else:
-            distances[dist] = [g]
-    smallestKey = min(distances.keys())
-    if len(distances[smallestKey]) == 1 and smallestKey <= tolerance:
-        return [int(x) for x in distances[min(distances.keys())]]
-    else:
-        return None
+        levDist = levenshteinDistance(strokes, g)
+        if levDist <= tolerance:
+            distances.setdefault(levDist, [])
+            distances[levDist].append(g)
+
+    if not distances:
+        return None # no matching gestures within tolerance
+
+    return tuple(distances[min(distances.keys())])
+
 
 def levenshteinDistance(s1, s2):
     # Returns the Levenshtein Distance between two strings as an integer.
@@ -170,8 +149,12 @@ def levenshteinDistance(s1, s2):
     # 3, since the following three edits change one into the other, and there
     # is no way to do it with fewer than three edits:
     #   kitten -> sitten -> sittin -> sitting
-    len1 = len(s1)
-    len2 = len(s2)
+    singleLetterMapping = {DOWNLEFT: '1', DOWN:'2', DOWNRIGHT:'3',
+                           LEFT:'4', RIGHT:'6',
+                           UPLEFT:'7', UP:'8', UPRIGHT:'9'}
+
+    len1 = len([singleLetterMapping[letter] for letter in s1])
+    len2 = len([singleLetterMapping[letter] for letter in s2])
 
     matrix = list(range(len1 + 1)) * (len2 + 1)
     for i in range(len2 + 1):
@@ -183,15 +166,6 @@ def levenshteinDistance(s1, s2):
             else:
                 matrix[i+1][j+1] = min(matrix[i+1][j] + 1, matrix[i][j+1] + 1, matrix[i][j] + 1)
     return matrix[len2][len1]
-
-def setMinStrokeLen(val):
-    # Set the length (in pixels) a stroke must be to be recognized as a stroke.
-    global _MIN_SEG_LEN
-    _MIN_SEG_LEN = val
-
-def getMinStrokeLen():
-    # Get the minimum segment length.
-    return _MIN_SEG_LEN
 
 
 
@@ -217,10 +191,10 @@ def _identifyStrokes(points):
         direction = None
         for curSegPoint in range(startSegPoint, len(points)-1):
             segmentDist += distances[curSegPoint]
-            if segmentDist >= _MIN_SEG_LEN:
+            if segmentDist >= _MIN_STROKE_LEN:
                 # check if all points are going the same direction.
                 for i in range(startSegPoint, curSegPoint):
-                    direction = _getDir(points[i], points[i+1])
+                    direction = _getDirection(points[i], points[i+1])
                     if curDir is None:
                         curDir = direction
                     elif direction != curDir:
@@ -237,7 +211,7 @@ def _identifyStrokes(points):
             strokeSegments[-1][1] = curSegPoint
     return strokes, strokeSegments
 
-def _getDir(coord1, coord2):
+def _getDirection(coord1, coord2):
     # Return the integer of one of the 8 directions this line is going in.
     # coord1 and coord2 are (x, y) integers coordinates.
     x1, y1 = coord1

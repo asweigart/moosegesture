@@ -7,3 +7,5 @@ This game can run with both Python 2 and Python 3. This module is fed a series o
 These mouse movements can be combined to form "mouse gestures" to perform different commands.
 
 The moosegesturetest.py is a Pygame program that demonstrates how the module works. The blog post at http://coffeeghost.net/2011/05/09/moosegesture-python-mouse-gestures-module/ describes the module in more detail, along with a couple screenshots of the test program.
+
+The Simon Gesture game makes use of this module: https://github.com/asweigart/simongesture (also included under the docs folder)

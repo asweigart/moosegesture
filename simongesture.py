@@ -9,7 +9,7 @@
 
 __version__ = '1.0.0'
 
-import random, sys, pygame, moosegesture
+import random, sys, pygame, moosegesture, os
 from pygame.locals import MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, KEYDOWN, KEYUP, K_m, K_ESCAPE, QUIT
 from moosegesture import UP, UPRIGHT, RIGHT, DOWNRIGHT, DOWN,DOWNLEFT, LEFT, UPLEFT
 
@@ -65,7 +65,7 @@ def main():
     musicLoaded = True
     try:
         # This mp3 can be downloaded from http://www.freesound.org/people/ERH/sounds/30192/
-        pygame.mixer.music.load('simonbackground.mp3')
+        pygame.mixer.music.load(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'simonbackground.mp3'))
         pygame.mixer.music.play(-1, 0.0)
     except pygame.error:
         musicLoaded = False

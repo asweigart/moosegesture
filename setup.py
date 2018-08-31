@@ -1,10 +1,11 @@
-
+import re
 from setuptools import setup
 
 
-# Dynamically calculate the version based on pygcurse.VERSION.
-version = __import__('moosegesture').__version__
-
+# Load version from module (without loading the whole module)
+with open('moosegesture/__init__.py', 'r') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
 
 setup(
     name='MooseGesture',
@@ -27,8 +28,16 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.5',
+        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.1',
+        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
 )

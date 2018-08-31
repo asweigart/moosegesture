@@ -1,6 +1,6 @@
 """
-MooseGesture 0.9.0 A mouse gestures recognition library.
-Al Sweigart al@coffeeghost.net
+MooseGesture - A mouse gestures recognition library.
+By Al Sweigart al@coffeeghost.net
 http://coffeeghost.net/2011/05/09/moosegesture-python-mouse-gestures-module
 
 Usage:
@@ -46,38 +46,13 @@ Explanation of the nomenclature in this module:
     then down then left.
 
 
-# Copyright (c) 2011, Al Sweigart
-# All rights reserved.
-#
-# BSD-style license:
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * Neither the name of the MooseGesture nor the
-#       names of its contributors may be used to endorse or promote products
-#       derived from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY Al Sweigart "AS IS" AND ANY
-# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL Al Sweigart BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-__version__ = '0.9.1'
+__version__ = '1.0.0'
+
+import doctest
 
 from math import sqrt
-from sys import maxsize
 
 # This is the minimum distance the mouse must travel (in pixels) before a
 # segment will be considered for stroke interpretation.
@@ -93,32 +68,40 @@ UP = 'U'
 UPRIGHT = 'UR'
 
 def getGesture(points):
-    # Returns a gesture as a list of directional integers, i.e. [2,6,4] for
-    # the down-left-right gesture.
-    #
-    # The points param is a list of tuples of XY points that make up the user's
-    # mouse gesture.
+    """
+    Returns a gesture as a list of directions, i.e. ['U', 'DL'] for
+    the down-left-right gesture.
+
+    The `points` parameter is a list of (x, y) tuples of points that make up
+    the user's mouse gesture.
+    """
     return _identifyStrokes(points)[0]
 
 
 def getSegments(points):
-    # Returns a list of tuples of integers. The tuples are the start and end
-    # indexes of the points that make up a consistent stroke.
+    """
+    Returns a list of tuples of integers. The tuples are the start and end
+    indexes of the points that make up a consistent stroke.
+    """
     return _identifyStrokes(points)[1]
 
 
 def getGestureAndSegments(points):
-    # Returns a list of tuples. The first item in the tuple is the directional
-    # integer, and the second item is a tuple of integers for the start and end
-    # indexes of the points that make up the stroke.
+    """
+    Returns a list of tuples. The first item in the tuple is the directional
+    integer, and the second item is a tuple of integers for the start and end
+    indexes of the points that make up the stroke.
+    """
     strokes, strokeSegments = _identifyStrokes(points)
     return list(zip(strokes, strokeSegments))
 
 
-def findClosestMatchingGesture(strokes, gestureList, tolerance=maxsize):
-    # Returns the gesture(s) in gestureList that closest matches the gesture in
-    # strokes. The tolerance is how many differences there can be and still
-    # be considered a match.
+def findClosestMatchingGesture(strokes, gestureList, maxDifference=None):
+    """
+    Returns the gesture(s) in `gestureList` that closest matches the gesture in
+    `strokes`. The `maxDifference` is how many differences there can be and still
+    be considered a match.
+    """
     if len(gestureList) == 0:
         return None
 
@@ -127,28 +110,31 @@ def findClosestMatchingGesture(strokes, gestureList, tolerance=maxsize):
     distances = {}
     for g in gestureList:
         levDist = levenshteinDistance(strokes, g)
-        if levDist <= tolerance:
+        if maxDifference is None or levDist <= maxDifference:
             distances.setdefault(levDist, [])
             distances[levDist].append(g)
 
     if not distances:
-        return None # no matching gestures within tolerance
+        return None # No matching gestures are within the tolerance of maxDifference.
 
     return tuple(distances[min(distances.keys())])
 
 
 def levenshteinDistance(s1, s2):
-    # Returns the Levenshtein Distance between two strings as an integer.
+    """
+    Returns the Levenshtein Distance between two strings, `s1` and `s2` as an
+    integer.
 
-    # http://en.wikipedia.org/wiki/Levenshtein_distance
-    # The Levenshtein Distance (aka edit distance) is how many changes (i.e.
-    # insertions, deletions, substitutions) have to be made to convert one
-    # string into another.
-    #
-    # For example, the Levenshtein distance between "kitten" and "sitting" is
-    # 3, since the following three edits change one into the other, and there
-    # is no way to do it with fewer than three edits:
-    #   kitten -> sitten -> sittin -> sitting
+    http://en.wikipedia.org/wiki/Levenshtein_distance
+    The Levenshtein Distance (aka edit distance) is how many changes (i.e.
+    insertions, deletions, substitutions) have to be made to convert one
+    string into another.
+
+    For example, the Levenshtein distance between "kitten" and "sitting" is
+    3, since the following three edits change one into the other, and there
+    is no way to do it with fewer than three edits:
+      kitten -> sitten -> sittin -> sitting
+    """
     singleLetterMapping = {DOWNLEFT: '1', DOWN:'2', DOWNRIGHT:'3',
                            LEFT:'4', RIGHT:'6',
                            UPLEFT:'7', UP:'8', UPRIGHT:'9'}
@@ -167,10 +153,6 @@ def levenshteinDistance(s1, s2):
                 matrix[i+1][j+1] = min(matrix[i+1][j] + 1, matrix[i][j+1] + 1, matrix[i][j] + 1)
     return matrix[len2][len1]
 
-
-
-
-# Private Functions:
 
 def _identifyStrokes(points):
     strokes = []
@@ -212,8 +194,10 @@ def _identifyStrokes(points):
     return strokes, strokeSegments
 
 def _getDirection(coord1, coord2):
-    # Return the integer of one of the 8 directions this line is going in.
-    # coord1 and coord2 are (x, y) integers coordinates.
+    """
+    Return the direction the line formed by the (x, y)
+    points in `coord1` and `coord2`.
+    """
     x1, y1 = coord1
     x2, y2 = coord2
 
@@ -262,8 +246,10 @@ def _getDirection(coord1, coord2):
             return DOWNLEFT
 
 def _distance(coord1, coord2):
-    # Return distance between two points. This is a basic pythagorean theorem calculation.
-    # coord1 and coord2 are (x, y) integers coordinates.
+    """
+    Return the distance between two points, `coord1` and `coord2`. These
+    parameters are assumed to be (x, y) tuples.
+    """
     xdist = coord1[0] - coord2[0]
     ydist = coord1[1] - coord2[1]
     return sqrt(xdist*xdist + ydist*ydist)

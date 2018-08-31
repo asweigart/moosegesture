@@ -1,4 +1,4 @@
-Copyright (c) 2014, Al Sweigart
+Copyright (c) 2011, Al Sweigart
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

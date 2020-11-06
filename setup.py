@@ -1,4 +1,5 @@
 import re
+import os
 from setuptools import setup
 
 
@@ -6,6 +7,12 @@ from setuptools import setup
 with open('moosegesture/__init__.py', 'r') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         fd.read(), re.MULTILINE).group(1)
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+# Get the long description from the README file
+with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name='MooseGesture',
@@ -15,6 +22,7 @@ setup(
     author_email='al@inventwithpython.com',
     description=('A mouse gesture recognition module for Python.'),
     license='BSD',
+    long_description=long_description,
     packages=['moosegesture'],
     test_suite='tests',
     keywords="mouse gesture",
